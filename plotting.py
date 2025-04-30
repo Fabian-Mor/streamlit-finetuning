@@ -266,3 +266,4 @@ def plot_triangle(coords, values, acc=True, corner_names=None):
 
     fig.tight_layout()
     return fig
+
