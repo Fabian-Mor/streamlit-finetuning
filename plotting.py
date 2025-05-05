@@ -195,6 +195,8 @@ def plot_compare(losses_finetuned, acc_finetuned,
     finetuned_data = acc_finetuned if acc else losses_finetuned
     interpolated_data = acc_interpolated if acc else losses_interpolated
     metric_name = "Accuracy" if acc else "Loss"
+    finetuned_data = finetuned_data[1:]
+    interpolated_data = interpolated_data[1:]
 
     num_points = len(finetuned_data)
     if num_points == 0 or len(interpolated_data) != num_points:
@@ -203,14 +205,13 @@ def plot_compare(losses_finetuned, acc_finetuned,
     fig, ax = plt.subplots(figsize=(10, 6))
 
     x_values = np.arange(num_points)
-
     # Plot finetuned values
     ax.plot(x_values, finetuned_data, marker='o', color='blue', label=f'Finetuned {metric_name}', alpha=0.8)
 
     # Plot interpolated values
     ax.plot(x_values, interpolated_data, marker='x', color='green', label=f'Interpolated {metric_name}', alpha=0.8)
 
-    ax.set_xlabel("Epoch")
+    ax.set_xlabel("Epoch / Interpolation step")
     ax.set_ylabel(metric_name)
     ax.set_title(f"Comparison of {metric_name} (Finetuned vs Interpolated)")
     ax.grid(True)
@@ -220,10 +221,12 @@ def plot_compare(losses_finetuned, acc_finetuned,
     return fig
 
 
-def plot_triangle(coords, values, acc=True, corner_names=None):
+def plot_triangle(coords, values, acc=True, corner_names=None, title=None):
     coords = np.array(coords)
     values = np.array(values)
-    title = "Accuracy" if acc else "Loss"
+    acc_loss = "Accuracy" if acc else "Loss"
+    if title is None:
+        title = acc_loss
 
     x = coords[:, 0]  # α (zeroshot)
     y = coords[:, 1]  # β (finetuned)
@@ -234,7 +237,7 @@ def plot_triangle(coords, values, acc=True, corner_names=None):
     fig, ax = plt.subplots(figsize=(6, 5))
     contour = ax.tricontourf(triang, z, levels=40, cmap="viridis")
     cbar = fig.colorbar(contour, ax=ax)
-    cbar.set_label(title)
+    cbar.set_label(acc_loss)
 
     # Add optimal point (max accuracy or min loss)
     best_idx = np.argmax(z) if acc else np.argmin(z)
@@ -266,4 +269,3 @@ def plot_triangle(coords, values, acc=True, corner_names=None):
 
     fig.tight_layout()
     return fig
-
